@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A beginner-friendly, copy-and-paste companion for making an eight-page coded zine with p5.(gen)Zine.">
+  <title>Make a coded zine — p5.(gen)Zine workshop companion</title>
+  <style>
+    :root {
+      --ink: #171717;
+      --paper: #f3eedf;
+      --paper-2: #fffaf0;
+      --pink: #ff3b78;
+      --acid: #d9ff43;
+      --blue: #304cff;
+      --line: 2px solid var(--ink);
+      --shadow: 5px 5px 0 var(--ink);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 20% 10%, rgba(255,59,120,.12), transparent 27rem),
+        linear-gradient(90deg, rgba(23,23,23,.035) 1px, transparent 1px),
+        var(--paper);
+      background-size: auto, 22px 22px, auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      line-height: 1.55;
+    }
+
+    a { color: inherit; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+    a:hover { background: var(--acid); }
+    button, input { font: inherit; }
+
+    .skip-link {
+      position: fixed;
+      left: 1rem;
+      top: -5rem;
+      z-index: 99;
+      padding: .7rem 1rem;
+      background: white;
+      border: var(--line);
+    }
+    .skip-link:focus { top: 1rem; }
+
+    header {
+      min-height: 88vh;
+      display: grid;
+      place-items: center;
+      padding: 5rem 1.25rem;
+      border-bottom: var(--line);
+      overflow: hidden;
+    }
+
+    .hero { width: min(1100px, 100%); position: relative; }
+    .kicker {
+      display: inline-block;
+      margin: 0 0 1.25rem;
+      padding: .35rem .65rem;
+      color: white;
+      background: var(--blue);
+      transform: rotate(-2deg);
+      border: var(--line);
+      box-shadow: 3px 3px 0 var(--ink);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    h1, h2, h3 { line-height: .98; letter-spacing: -.045em; }
+    h1 {
+      max-width: 920px;
+      margin: 0;
+      font: 900 clamp(3.8rem, 11vw, 9rem)/.83 Arial Black, Impact, sans-serif;
+      text-transform: uppercase;
+    }
+    h1 span { color: var(--pink); text-shadow: 4px 4px 0 var(--ink); }
+    .lede {
+      max-width: 760px;
+      margin: 2rem 0 0;
+      padding: 1rem 1.2rem;
+      background: var(--paper-2);
+      border: var(--line);
+      box-shadow: var(--shadow);
+      font-size: clamp(1rem, 2vw, 1.3rem);
+    }
+    .hero-note {
+      position: absolute;
+      right: 1rem;
+      bottom: -4rem;
+      width: 220px;
+      padding: 1rem;
+      background: var(--acid);
+      border: var(--line);
+      transform: rotate(4deg);
+      font-weight: 800;
+    }
+
+    .layout {
+      width: min(1200px, calc(100% - 2rem));
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 240px minmax(0, 1fr);
+      gap: 3rem;
+      align-items: start;
+    }
+    nav {
+      position: sticky;
+      top: 1rem;
+      margin: 3rem 0;
+      padding: 1rem;
+      background: var(--paper-2);
+      border: var(--line);
+      box-shadow: var(--shadow);
+    }
+    nav strong { display: block; margin-bottom: .6rem; text-transform: uppercase; }
+    nav ol { margin: 0; padding-left: 1.5rem; }
+    nav li { margin: .3rem 0; }
+    nav a { text-decoration: none; }
+    nav a:hover { text-decoration: underline; }
+
+    main { min-width: 0; padding: 3rem 0 7rem; }
+    section { scroll-margin-top: 2rem; margin-bottom: 5rem; }
+    h2 {
+      margin: 0 0 1.5rem;
+      font: 900 clamp(2.5rem, 6vw, 5.5rem)/.9 Arial Black, Impact, sans-serif;
+      text-transform: uppercase;
+    }
+    h3 { margin: 0 0 .7rem; font-size: 1.35rem; }
+    .step-no {
+      display: inline-grid;
+      place-items: center;
+      width: 2.4rem;
+      height: 2.4rem;
+      margin-right: .5rem;
+      color: white;
+      background: var(--pink);
+      border: var(--line);
+      border-radius: 50%;
+      font: 800 1rem/1 monospace;
+      vertical-align: .4em;
+      box-shadow: 2px 2px 0 var(--ink);
+    }
+    .intro { max-width: 780px; font-size: 1.08rem; }
+    .callout {
+      margin: 1.5rem 0;
+      padding: 1rem 1.2rem;
+      background: var(--acid);
+      border: var(--line);
+      box-shadow: var(--shadow);
+    }
+    .callout.pink { background: #ffd2e0; }
+    .callout.blue { color: white; background: var(--blue); }
+    .callout p { margin: 0; }
+
+    .cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+    .card {
+      padding: 1.2rem;
+      background: var(--paper-2);
+      border: var(--line);
+    }
+    .card:nth-child(3n+2) { transform: rotate(.5deg); }
+    .card p:last-child { margin-bottom: 0; }
+
+    .page-map {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: .35rem;
+      margin: 1.5rem 0;
+    }
+    .page-map div {
+      min-height: 115px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: .55rem;
+      background: white;
+      border: var(--line);
+      font-size: .78rem;
+    }
+    .page-map div:nth-child(1), .page-map div:nth-child(8) { background: var(--acid); }
+    .page-map div:nth-child(3), .page-map div:nth-child(6) { background: #ffd2e0; }
+    .page-map b { font-size: 1.5rem; }
+
+    .code-card {
+      margin: 1.2rem 0;
+      overflow: hidden;
+      background: #151515;
+      color: #f7f4e9;
+      border: var(--line);
+      box-shadow: var(--shadow);
+    }
+    .code-head {
+      min-height: 46px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: .5rem .65rem .5rem 1rem;
+      color: var(--ink);
+      background: var(--pink);
+      border-bottom: var(--line);
+      font-weight: 800;
+    }
+    .copy {
+      border: var(--line);
+      background: var(--paper-2);
+      padding: .35rem .7rem;
+      cursor: pointer;
+      box-shadow: 2px 2px 0 var(--ink);
+    }
+    .copy:hover, .copy:focus-visible { background: var(--acid); }
+    .copy:active { transform: translate(2px, 2px); box-shadow: none; }
+    pre {
+      margin: 0;
+      padding: 1.1rem;
+      overflow: auto;
+      font: .9rem/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      tab-size: 2;
+    }
+    code { font-family: inherit; }
+    :not(pre) > code { padding: .1rem .28rem; background: rgba(255,59,120,.16); border: 1px solid currentColor; }
+    .comment { color: #a9df68; }
+    .change { color: #ff8eb1; }
+
+    .anatomy {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      align-items: stretch;
+    }
+    .coordinate {
+      min-height: 310px;
+      position: relative;
+      background: white;
+      border: var(--line);
+      overflow: hidden;
+    }
+    .coordinate::before {
+      content: "0,0";
+      position: absolute;
+      top: .4rem;
+      left: .5rem;
+      font-weight: 900;
+    }
+    .coordinate::after {
+      content: "x →\A\A y ↓";
+      white-space: pre;
+      position: absolute;
+      top: 2rem;
+      left: 1rem;
+      color: var(--blue);
+      font-weight: 900;
+    }
+    .coordinate .thing {
+      position: absolute;
+      left: 42%;
+      top: 34%;
+      width: 38%;
+      height: 42%;
+      display: grid;
+      place-items: center;
+      background: var(--acid);
+      border: var(--line);
+      transform: rotate(-5deg);
+      font-weight: 900;
+    }
+
+    table { width: 100%; border-collapse: collapse; background: var(--paper-2); }
+    th, td { padding: .75rem; border: var(--line); text-align: left; vertical-align: top; }
+    th { background: var(--acid); }
+
+    details { margin: .7rem 0; background: var(--paper-2); border: var(--line); }
+    summary { padding: .8rem 1rem; cursor: pointer; font-weight: 800; }
+    details > div { padding: 0 1rem 1rem; }
+
+    footer {
+      padding: 3rem 1rem 5rem;
+      color: white;
+      background: var(--ink);
+      border-top: 8px solid var(--pink);
+      text-align: center;
+    }
+    footer p { max-width: 720px; margin: .7rem auto; }
+    footer a { color: var(--acid); }
+
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; gap: 0; }
+      nav { position: static; margin-bottom: 1rem; }
+      nav ol { columns: 2; }
+      .hero-note { position: static; margin: 2rem 0 0 auto; }
+      .page-map { grid-template-columns: repeat(4, 1fr); }
+      .cards, .anatomy { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 520px) {
+      header { min-height: auto; padding: 3rem 1rem; }
+      .layout { width: min(100% - 1.2rem, 1200px); }
+      nav ol { columns: 1; }
+      .page-map { grid-template-columns: repeat(2, 1fr); }
+      h1 { font-size: 3.3rem; }
+      pre { font-size: .78rem; }
+      .code-head { align-items: flex-start; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      * { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#start">Skip to the tutorial</a>
+
+  <header>
+    <div class="hero">
+      <p class="kicker">Workshop companion · copy, paste, change</p>
+      <h1>Make a <span>coded zine</span> about the internet</h1>
+      <p class="lede">This is a zine-making workshop that uses code. It is not a heavy coding course. Paste the working examples, change the marked values, and ask for help when something breaks.</p>
+      <p class="hero-note">Start with paper. End with paper. Let the browser get strange in between.</p>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav aria-label="Tutorial contents">
+      <strong>Jump to</strong>
+      <ol>
+        <li><a href="#paper">Paper first</a></li>
+        <li><a href="#prepare">Prepare files</a></li>
+        <li><a href="#start">Start the sketch</a></li>
+        <li><a href="#pages">Pages & coordinates</a></li>
+        <li><a href="#background">Backgrounds</a></li>
+        <li><a href="#images">Images</a></li>
+        <li><a href="#text">Text</a></li>
+        <li><a href="#shapes">Shapes & repeats</a></li>
+        <li><a href="#glitch">Glitch</a></li>
+        <li><a href="#selfie">Selfie</a></li>
+        <li><a href="#export">Export</a></li>
+        <li><a href="#problems">Fix problems</a></li>
+      </ol>
+    </nav>
+
+    <main>
+      <section id="paper">
+        <h2><span class="step-no">1</span>Paper first</h2>
+        <p class="intro">Fold a blank eight-page zine. Number every page, including the cover and back. Decide what changes at each page turn before opening the editor.</p>
+        <div class="page-map" aria-label="Eight-page example plan">
+          <div><b>1</b><span>Enter the internet<br>Cover</span></div>
+          <div><b>2</b><span>First memory<br>One image</span></div>
+          <div><b>3</b><span>Too many windows<br>Repeat</span></div>
+          <div><b>4</b><span>Search history<br>Text box</span></div>
+          <div><b>5</b><span>The feed<br>Random layout</span></div>
+          <div><b>6</b><span>Tracking<br>Cursor</span></div>
+          <div><b>7</b><span>Online identity<br>Selfie</span></div>
+          <div><b>8</b><span>Log off<br>Back cover</span></div>
+        </div>
+        <div class="callout"><p><strong>The code has five drawing surfaces:</strong> <code>cover</code>, three double-page spreads called <code>one</code>, <code>two</code> and <code>three</code>, then <code>back</code>.</p></div>
+      </section>
+
+      <section id="prepare">
+        <h2><span class="step-no">2</span>Prepare your files</h2>
+        <p class="intro">Collect a small set of photographs, screenshots, error messages, icons and short pieces of writing. Rename files before coding.</p>
+        <table>
+          <thead><tr><th>Use</th><th>Working size</th><th>Suggested source size</th></tr></thead>
+          <tbody>
+            <tr><td>Single page</td><td>800 × 1,236 px</td><td>1,600 × 2,472 px</td></tr>
+            <tr><td>Double-page spread</td><td>1,600 × 1,236 px</td><td>3,200 × 2,472 px</td></tr>
+          </tbody>
+        </table>
+        <div class="cards" style="margin-top:1rem">
+          <article class="card"><h3>Photographs</h3><p>Use JPEG at roughly 75–85% quality. Keep most files below 2 MB.</p></article>
+          <article class="card"><h3>Transparency</h3><p>Use PNG for cut-outs, line art and images needing a transparent background.</p></article>
+          <article class="card"><h3>Filenames</h3><p>Use short lowercase names without spaces. The examples use <code>image1.jpg</code>.</p></article>
+          <article class="card"><h3>Folder</h3><p>Put images inside an <code>assets</code> folder next to your sketch.</p></article>
+        </div>
+      </section>
+
+      <section id="start">
+        <h2><span class="step-no">3</span>Start the sketch</h2>
+        <p class="intro">Use this complete <code>index.html</code>. The required <code>myCanvas</code> container appears before the scripts. Load p5.js first, p5.(gen)Zine second, then your sketch.</p>
+        <div class="code-card">
+          <div class="code-head"><span>index.html — complete working structure</span><button class="copy" data-copy="code-load">Copy</button></div>
+          <pre id="code-load"><code>&lt;!doctype html&gt;
+&lt;html lang="en"&gt;
+  &lt;head&gt;
+    &lt;meta charset="utf-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;
+    &lt;link rel="stylesheet" href="style.css"&gt;
+    &lt;title&gt;My coded zine&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;main id="myCanvas"&gt;&lt;/main&gt;
+
+    <span class="comment">&lt;!-- Keep these at the end, in this order --&gt;</span>
+    &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"&gt;&lt;/script&gt;
+    &lt;script src="https://munusshih.github.io/p5.genzine/p5.(gen)zine.js"&gt;&lt;/script&gt;
+    &lt;script src="sketch.js"&gt;&lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+        </div>
+        <p>Now describe the zine. Camera access is off until the selfie step.</p>
+        <div class="code-card">
+          <div class="code-head"><span>sketch.js — starter</span><button class="copy" data-copy="code-starter">Copy</button></div>
+          <pre id="code-starter"><code>const zine = {
+  title: "A Small Zine About the Internet",
+  author: "YOUR NAME",          <span class="comment">// CHANGE THIS</span>
+  description: "Eight pages about being online",
+  cam: false
+};
+
+function setupPage() {
+  <span class="comment">// Put backgrounds, images, text and shapes here.</span>
+}
+
+function drawPage() {
+  <span class="comment">// Keep this empty until you add movement or live video.</span>
+}</code></pre>
+        </div>
+        <div class="callout pink"><p><strong>Important:</strong> the library owns p5’s usual <code>setup()</code> and <code>draw()</code>. Use <code>setupPage()</code> and <code>drawPage()</code> instead. Most of this workshop happens once in <code>setupPage()</code>. Use <code>drawPage()</code> only when something should change continuously.</p></div>
+        <div class="callout"><p><strong>Build one function:</strong> unless a snippet specifically shows <code>drawPage()</code>, add its lines inside your existing <code>setupPage()</code>. Do not create several functions with the same name.</p></div>
+      </section>
+
+      <section id="pages">
+        <h2><span class="step-no">4</span>Pages & coordinates</h2>
+        <div class="anatomy">
+          <div>
+            <p>A single page is 800 × 1,236. A spread is 1,600 × 1,236. The fold of a spread is at <code>x = 800</code>.</p>
+            <p>Every object starts at the upper-left. Increase <code>x</code> to move right. Increase <code>y</code> to move down.</p>
+            <div class="callout"><p>Most drawing commands begin with a page name: <code>cover.image()</code>, <code>two.text()</code> or <code>back.background()</code>.</p></div>
+          </div>
+          <div class="coordinate" aria-label="Diagram showing x and y coordinates"><div class="thing">x: 340<br>y: 420</div></div>
+        </div>
+      </section>
+
+      <section id="background">
+        <h2><span class="step-no">5</span>Change backgrounds</h2>
+        <p class="intro">Use colour names, hexadecimal colours or RGB values. Add backgrounds first inside <code>setupPage()</code> so they do not cover later material.</p>
+        <div class="code-card">
+          <div class="code-head"><span>One colour per drawing surface</span><button class="copy" data-copy="code-bg">Copy</button></div>
+          <pre id="code-bg"><code>function setupPage() {
+  cover.background("#d9ff43");
+  one.background("#171717");
+  two.background(240, 70, 125);  <span class="comment">// red, green, blue</span>
+  three.background("lightblue");
+  back.background("#d9ff43");
+}</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-head"><span>Different colours on each half of a spread</span><button class="copy" data-copy="code-half-bg">Copy</button></div>
+          <pre id="code-half-bg"><code>function setupPage() {
+  one.background("#fffaf0");
+  one.leftBackground("#d9ff43");
+  one.rightBackground("#ff3b78");
+}</code></pre>
+        </div>
+      </section>
+
+      <section id="images">
+        <h2><span class="step-no">6</span>Add images</h2>
+        <p class="intro">First declare the image, then load it in <code>preload()</code>. The path must match the folder and filename exactly.</p>
+        <div class="code-card">
+          <div class="code-head"><span>Load an image</span><button class="copy" data-copy="code-preload">Copy</button></div>
+          <pre id="code-preload"><code>let image1;
+
+function preload() {
+  image1 = loadImage("assets/image1.jpg");
+}</code></pre>
+        </div>
+        <h3>Position and resize</h3>
+        <p>The four numbers are <code>x</code>, <code>y</code>, <code>width</code> and <code>height</code>.</p>
+        <div class="code-card">
+          <div class="code-head"><span>Place the image</span><button class="copy" data-copy="code-image">Copy</button></div>
+          <pre id="code-image"><code><span class="comment">// Add this inside setupPage()</span>
+<span class="comment">// x: 60, y: 180, width: 680, height: 900</span>
+cover.image(image1, 60, 180, 680, 900);</code></pre>
+        </div>
+        <h3>Fill a page automatically</h3>
+        <div class="code-card">
+          <div class="code-head"><span>Library page helpers</span><button class="copy" data-copy="code-full-image">Copy</button></div>
+          <pre id="code-full-image"><code>cover.fullPage(image1);
+one.leftPage(image1, 0, 0);
+one.rightPage(image1, 0, 0);</code></pre>
+        </div>
+        <p>These helpers preserve the image’s proportions but may extend beyond the visible page. Use manual positioning when the crop matters.</p>
+        <h3>Keep one image straight</h3>
+        <p>No rotation code is needed. This image stays fixed because it is added once inside <code>setupPage()</code>.</p>
+        <div class="code-card">
+          <div class="code-head"><span>A fixed, unrotated image</span><button class="copy" data-copy="code-straight-image">Copy</button></div>
+          <pre id="code-straight-image"><code>cover.push();
+cover.imageMode(CORNER);
+cover.image(image1, 60, 180, 680, 900);
+cover.pop();</code></pre>
+        </div>
+        <h3>Give one image a fixed angle</h3>
+        <p><code>rotate()</code> turns the page’s coordinate system around its current origin. The sequence below temporarily moves that origin to the centre of this image, rotates it by a fixed angle, draws it, then restores the page.</p>
+        <div class="code-card">
+          <div class="code-head"><span>One image at a fixed −8° angle</span><button class="copy" data-copy="code-rotate">Copy</button></div>
+          <pre id="code-rotate"><code>cover.push();                 <span class="comment">// 1. save the page settings</span>
+cover.translate(400, 620);   <span class="comment">// 2. choose the image centre</span>
+cover.rotate(radians(-8));   <span class="comment">// 3. set a fixed angle</span>
+cover.imageMode(CENTER);     <span class="comment">// 4. draw from the centre</span>
+cover.image(image1, 0, 0, 680, 900);
+cover.pop();                  <span class="comment">// 5. stop affecting later items</span></code></pre>
+        </div>
+        <div class="callout"><p><strong>This does not spin.</strong> The value <code>-8</code> never changes, and the block runs once in <code>setupPage()</code>. Use a separate <code>push()</code> and <code>pop()</code> block for every independently rotated image.</p></div>
+      </section>
+
+      <section id="text">
+        <h2><span class="step-no">7</span>Add text</h2>
+        <p class="intro">Treat each piece of text as one item. Save the page settings, set everything that item needs, draw it, then restore the page. The final two numbers position the text.</p>
+        <div class="code-card">
+          <div class="code-head"><span>Position a heading</span><button class="copy" data-copy="code-text">Copy</button></div>
+          <pre id="code-text"><code>cover.push();
+cover.noStroke();              <span class="comment">// no outline around these letters</span>
+cover.fill("#171717");
+cover.textFont("Arial");
+cover.textSize(72);
+cover.textAlign(LEFT, TOP);
+cover.text("A SMALL ZINE\nABOUT THE INTERNET", 60, 80);
+cover.pop();</code></pre>
+        </div>
+        <p><code>\n</code> starts a new line. <code>noStroke()</code> removes outlines from items drawn on that page. It would normally remain active for later items, but <code>push()</code> and <code>pop()</code> contain it to this heading.</p>
+        <h3>Rotate one piece of text</h3>
+        <div class="code-card">
+          <div class="code-head"><span>One heading at a fixed 6° angle</span><button class="copy" data-copy="code-rotate-text">Copy</button></div>
+          <pre id="code-rotate-text"><code>cover.push();
+cover.translate(400, 160);    <span class="comment">// centre point of this heading</span>
+cover.rotate(radians(6));     <span class="comment">// fixed angle, not animation</span>
+cover.noStroke();
+cover.fill("#171717");
+cover.textFont("Arial");
+cover.textSize(64);
+cover.textAlign(CENTER, CENTER);
+cover.text("YOU ARE ONLINE", 0, 0);
+cover.pop();</code></pre>
+        </div>
+        <h3>Easy fonts to try</h3>
+        <p>These common browser fonts need no extra files: <code>Arial</code>, <code>Verdana</code>, <code>Trebuchet MS</code>, <code>Georgia</code>, <code>Times New Roman</code>, <code>Courier New</code> and <code>Impact</code>. Generic choices such as <code>sans-serif</code>, <code>serif</code> and <code>monospace</code> are the safest.</p>
+        <p>p5.(gen)Zine also imports <code>Averia Libre</code>, <code>Bebas Neue</code>, <code>Bungee Shade</code>, <code>Faster One</code>, <code>Inconsolata</code>, <code>Playfair Display</code>, <code>Rubik Puddles</code> and <code>Ultra</code>. Availability depends on the font request loading successfully.</p>
+        <h3>Flow longer writing into columns</h3>
+        <p><code>textBox()</code> does not ask for a column count. It fills one box from top to bottom, then automatically begins another box to the right. Column count therefore comes from the amount of text, the column width, the column height and the available page width.</p>
+        <div class="code-card">
+          <div class="code-head"><span>Two-column settings on the left-hand page</span><button class="copy" data-copy="code-textbox">Copy</button></div>
+          <pre id="code-textbox"><code>two.push();
+two.noStroke();
+two.textSet("Arial", 28, LEFT, 36, "#171717");
+
+two.textBox(
+  "My first memory of the internet begins with a sound...",
+  60,    <span class="comment">// start x</span>
+  80,    <span class="comment">// start y</span>
+  320,   <span class="comment">// width of each column</span>
+  1000,  <span class="comment">// column height</span>
+  40,    <span class="comment">// gap before the next column</span>
+  true   <span class="comment">// show blue guides while designing</span>
+);
+two.pop();</code></pre>
+        </div>
+        <div class="callout"><p>Starting at <code>x = 60</code>, two 320-pixel columns plus a 40-pixel gap use 680 pixels. That fits within the 800-pixel left page. Change <code>true</code> to <code>false</code> before exporting. If the text is long enough, the function may continue into more columns, so check that it has not crossed the fold or page edge.</p></div>
+      </section>
+
+      <section id="shapes">
+        <h2><span class="step-no">8</span>Shapes & repeats</h2>
+        <p class="intro">Add one shape at a time. Give each shape its own colour, outline and position inside a <code>push()</code>/<code>pop()</code> block. That makes every item independent.</p>
+        <h3>A filled circle with no outline</h3>
+        <div class="code-card">
+          <div class="code-head"><span>Circle: fill, no stroke, position and size</span><button class="copy" data-copy="code-circle">Copy</button></div>
+          <pre id="code-circle"><code>one.push();
+one.fill("#d9ff43");          <span class="comment">// inside colour</span>
+one.noStroke();               <span class="comment">// no outline</span>
+one.circle(300, 420, 180);    <span class="comment">// centre x, centre y, diameter</span>
+one.pop();</code></pre>
+        </div>
+        <h3>An outlined rectangle with no fill</h3>
+        <div class="code-card">
+          <div class="code-head"><span>Rectangle: no fill, stroke, weight and dimensions</span><button class="copy" data-copy="code-rectangle">Copy</button></div>
+          <pre id="code-rectangle"><code>one.push();
+one.noFill();                 <span class="comment">// transparent inside</span>
+one.stroke("#ff3b78");       <span class="comment">// outline colour</span>
+one.strokeWeight(8);          <span class="comment">// outline thickness</span>
+one.rect(60, 80, 420, 260);  <span class="comment">// x, y, width, height</span>
+one.pop();</code></pre>
+        </div>
+        <h3>A rotated rectangle</h3>
+        <p>Shapes rotate in the same way as images and text. Translate to the shape’s centre, rotate, then draw the shape around <code>0, 0</code>.</p>
+        <div class="code-card">
+          <div class="code-head"><span>One rectangle at a fixed −12° angle</span><button class="copy" data-copy="code-rotate-shape">Copy</button></div>
+          <pre id="code-rotate-shape"><code>one.push();
+one.translate(300, 500);      <span class="comment">// centre of this rectangle</span>
+one.rotate(radians(-12));     <span class="comment">// fixed angle</span>
+one.rectMode(CENTER);
+one.fill("#304cff");
+one.stroke("#171717");
+one.strokeWeight(6);
+one.rect(0, 0, 420, 180);     <span class="comment">// width and height</span>
+one.pop();</code></pre>
+        </div>
+        <div class="callout"><p><strong>Page drawing settings persist.</strong> Calling <code>one.noStroke()</code> affects later items drawn on <code>one</code> until another stroke setting replaces it. It does not affect <code>cover</code> or <code>two</code>. Using <code>push()</code> and <code>pop()</code> for each item is the clearest beginner pattern.</p></div>
+        <h3>Repeat an image like too many browser windows</h3>
+        <div class="code-card">
+          <div class="code-head"><span>Loop across the right-hand page</span><button class="copy" data-copy="code-loop">Copy</button></div>
+          <pre id="code-loop"><code>one.push();
+for (let x = 850; x &lt; one.width; x += 180) {
+  for (let y = 60; y &lt; one.height; y += 150) {
+    one.image(image1, x, y, 140, 100);
+  }
+}
+one.pop();</code></pre>
+        </div>
+        <h3>Apply something to every drawing surface</h3>
+        <div class="code-card">
+          <div class="code-head"><span>The all array</span><button class="copy" data-copy="code-all">Copy</button></div>
+          <pre id="code-all"><code>for (const page of all) {
+  page.push();
+  page.noStroke();
+  page.fill("#304cff");
+  page.circle(40, 40, 20);
+  page.pop();
+}</code></pre>
+        </div>
+      </section>
+
+      <section id="glitch">
+        <h2><span class="step-no">9</span>Random & glitch layouts</h2>
+        <p class="intro">The library can arrange words or images for you. Keep a random printed composition in <code>setupPage()</code>. Put a deliberately moving glitch in <code>drawPage()</code>.</p>
+        <div class="code-card">
+          <div class="code-head"><span>Random text cloud</span><button class="copy" data-copy="code-random">Copy</button></div>
+          <pre id="code-random"><code>function setupPage() {
+  two.textSet("Arial", 34, LEFT, 40, "#171717");
+
+  two.randomLayout(
+    ["refresh", "accept cookies", "someone is typing"],
+    7,      <span class="comment">// size</span>
+    5,      <span class="comment">// area used</span>
+    12,     <span class="comment">// repetitions</span>
+    true    <span class="comment">// playful size changes</span>
+  );
+}</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-head"><span>Live glitch: image and words</span><button class="copy" data-copy="code-glitch">Copy</button></div>
+          <pre id="code-glitch"><code>function drawPage() {
+  three.background("#171717");  <span class="comment">// clear the previous frame</span>
+  three.textSet("Arial", 36, LEFT, 42, "#d9ff43");
+
+  three.glitchLayout(
+    [image1, "SIGNAL LOST"],
+    7,      <span class="comment">// size</span>
+    5,      <span class="comment">// maximum echoes</span>
+    18,     <span class="comment">// repetitions</span>
+    false   <span class="comment">// true makes it wilder</span>
+  );
+}</code></pre>
+        </div>
+        <div class="callout pink"><p><strong>Why redraw the background?</strong> <code>drawPage()</code> runs repeatedly. Without the background line, every glitch frame remains visible and rapidly builds into a dense block. This example clears and redraws the whole <code>three</code> spread, so do not place static content on that spread in <code>setupPage()</code>. Move the glitch to <code>setupPage()</code> if you want one frozen, printable result.</p></div>
+      </section>
+
+      <section id="selfie">
+        <h2><span class="step-no">10</span>Add a selfie</h2>
+        <p class="intro">Turn the camera on in the zine settings. The browser will ask for permission. Always offer a non-camera alternative.</p>
+        <div class="code-card">
+          <div class="code-head"><span>Enable the webcam</span><button class="copy" data-copy="code-cam">Copy</button></div>
+          <pre id="code-cam"><code>const zine = {
+  title: "A Small Zine About the Internet",
+  author: "YOUR NAME",
+  description: "Eight pages about being online",
+  cam: true
+};</code></pre>
+        </div>
+        <div class="code-card">
+          <div class="code-head"><span>Fill page seven with the mirrored camera</span><button class="copy" data-copy="code-selfie">Copy</button></div>
+          <pre id="code-selfie"><code>function drawPage() {
+  three.rightBackground("#171717");
+  three.push();
+  three.translate(1600, 0);  <span class="comment">// right edge of the spread</span>
+  three.scale(-1, 1);        <span class="comment">// mirror the camera</span>
+  three.tint(255, 80, 150);  <span class="comment">// optional colour tint</span>
+  three.image(selfie, 0, 0, 800, 1236);
+  three.pop();
+}</code></pre>
+        </div>
+        <p>To cover an entire drawing surface instead, use the library shortcut <code>cover.selfieBackground(255, 80, 150)</code>.</p>
+        <div class="callout blue"><p><strong>Note:</strong> camera access normally requires a secure <code>https</code> page. It may fail when opening an HTML file directly from a computer.</p></div>
+      </section>
+
+      <section id="export">
+        <h2><span class="step-no">11</span>Export, print, fold</h2>
+        <p class="intro">Save separate page images for reuse or download the imposed PDF for printing. Make a test print before finalising the composition.</p>
+        <div class="code-card">
+          <div class="code-head"><span>Add simple export buttons</span><button class="copy" data-copy="code-export">Copy</button></div>
+          <pre id="code-export"><code>function setupPage() {
+  makeButton("Download page images", "downloadJPG");
+  makeButton("Download print PDF", "downloadPDF");
+}</code></pre>
+        </div>
+        <div class="callout"><p>The bundled PDF is formatted for US Letter. If you are printing on A4, test the printer’s scaling and orientation. Avoid putting essential text against an edge or directly across a fold.</p></div>
+      </section>
+
+      <section id="problems">
+        <h2><span class="step-no">12</span>When it breaks</h2>
+        <details><summary>The page is blank</summary><div>Check the browser console. Confirm the libraries load before <code>sketch.js</code>. Make sure you used <code>setupPage()</code> and <code>drawPage()</code>, not the standard p5 names.</div></details>
+        <details><summary>The image does not appear</summary><div>Check capital letters, spaces and the file extension. <code>assets/photo.jpg</code> and <code>assets/Photo.JPG</code> are different paths on many web servers.</div></details>
+        <details><summary>Drawing appears outside the intended page</summary><div>Remember that spreads are 1,600 pixels wide. The left page occupies x 0–799 and the right page occupies x 800–1,599.</div></details>
+        <details><summary>The random layout flickers</summary><div>Move the random drawing code from <code>drawPage()</code> into <code>setupPage()</code>.</div></details>
+        <details><summary>The camera does not start</summary><div>Set <code>cam: true</code>, allow camera permission and use a secure HTTPS page. Provide a loaded photograph as the fallback.</div></details>
+        <details><summary>The PDF looks different from the browser</summary><div>Interactive elements cannot survive on paper. Check image crops, margins, folds and printer scaling with a low-ink test copy.</div></details>
+      </section>
+
+      <section>
+        <h2>Where next?</h2>
+        <p class="intro">This page covers only a small part of p5.js. Continue with the official <a href="https://p5js.org/reference/">p5.js reference</a>, browse the <a href="https://p5js.org/examples/">p5.js examples</a>, or inspect the <a href="https://github.com/munusshih/p5.genzine">p5.(gen)Zine source and documentation</a>.</p>
+        <div class="callout pink"><p><strong>Best next experiment:</strong> replace every image and sentence while leaving the code structure alone. Then change one rule.</p></div>
+      </section>
+    </main>
+  </div>
+
+  <footer>
+    <p><strong>Make a coded zine about the internet</strong></p>
+    <p>A beginner-friendly workshop companion for <a href="https://github.com/munusshih/p5.genzine">p5.(gen)Zine</a>, created by Munus Shih and Iley Cao.</p>
+  </footer>
+
+  <script>
+    document.querySelectorAll("[data-copy]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        const target = document.getElementById(button.dataset.copy);
+        const original = button.textContent;
+        try {
+          await navigator.clipboard.writeText(target.innerText);
+          button.textContent = "Copied!";
+        } catch (error) {
+          const selection = window.getSelection();
+          const range = document.createRange();
+          range.selectNodeContents(target);
+          selection.removeAllRanges();
+          selection.addRange(range);
+          button.textContent = "Select + copy";
+        }
+        window.setTimeout(() => { button.textContent = original; }, 1800);
+      });
+    });
+  </script>
+</body>
+</html>
